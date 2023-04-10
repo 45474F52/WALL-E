@@ -1,35 +1,63 @@
-﻿using Telegram.Bot;
+﻿using WALL_E.Core;
+using WALL_E.Model;
+using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Types.Enums;
 
 namespace WALL_E
 {
-    internal class Program
+    internal sealed class Program
     {
-        static void Main(string[] args)
-        {
-            new TelegramBotClient("5827074806:AAF3EYoa3QX7T-xINZPFCVaJYm38x7Lg8u0")
-                .StartReceiving(Update, Error);
-            Console.ReadKey(true);
-        }
+        private static readonly ICommandService _commandService;
 
-        private static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
+        static Program() => _commandService = new CommandService();
+
+        private static void Main()
         {
-            Message? message = update.Message;
-            if (!string.IsNullOrWhiteSpace(message?.Text))
+            TelegramBotClient botClient = new TelegramBotClient("5827074806:AAF3EYoa3QX7T-xINZPFCVaJYm38x7Lg8u0");
+
+            using (CancellationTokenSource cts = new CancellationTokenSource())
             {
-                if (message.Text.ToLower() == "lemonchello")
-                {
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Ты");
-                    //using (FileStream fs = new FileStream("", FileMode.))
-                    //{
+                ReceiverOptions receiverOptions = new ReceiverOptions() { AllowedUpdates = Array.Empty<UpdateType>() };
+                botClient.StartReceiving(
+                    updateHandler: HandleUpdateAsync,
+                    pollingErrorHandler: HandlePollingErrorAsync,
+                    receiverOptions: receiverOptions,
+                    cancellationToken: cts.Token);
 
-                    //}
-                    //await botClient.SendPhotoAsync(message.Chat.Id, new InputOnlineFile());
-                }
+                Console.WriteLine("READY");
+                Console.ReadKey(true);
+                cts.Cancel();
             }
         }
 
-        private static Task Error(ITelegramBotClient arg1, Exception arg2, CancellationToken arg3) => new(() => { });
+        private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken token)
+        {
+            if (update.Message is not { } message)
+                return;
+
+            foreach (TelegramCommand? command in _commandService.Get().Where(c => c.Equals(message)))
+            {
+                await command.Execute(message, botClient);
+                break;
+            }
+        }
+
+        #region Обработка ошибок
+        private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken token)
+        {
+            string ErrorMessage = exception switch
+            {
+                ApiRequestException apiRequestException =>
+                    $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
+
+            Console.WriteLine(ErrorMessage);
+            return Task.CompletedTask;
+        }
+        #endregion
     }
 }

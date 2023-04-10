@@ -6,10 +6,19 @@
     <RootNamespace>WALL_E</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <StartupObject>WALL_E.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Telegram.Bot" Version="18.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="E:\VisualStudio Projects\Projects\WALL-E\WALL-E\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="E:\VisualStudio Projects\Projects\WALL-E\WALL-E\.editorconfig" />
   </ItemGroup>
 
 </Project>
