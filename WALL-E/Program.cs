@@ -5,6 +5,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
+using System.Configuration;
 
 namespace WALL_E
 {
@@ -16,7 +17,8 @@ namespace WALL_E
 
         private static void Main()
         {
-            TelegramBotClient botClient = new TelegramBotClient("5827074806:AAF3EYoa3QX7T-xINZPFCVaJYm38x7Lg8u0");
+            string token = ConfigurationManager.AppSettings["Token"] ?? throw new ArgumentNullException("Токен не найден");
+            TelegramBotClient botClient = new TelegramBotClient(token);
 
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
@@ -38,11 +40,9 @@ namespace WALL_E
             if (update.Message is not { } message)
                 return;
 
-            foreach (TelegramCommand? command in _commandService.Get().Where(c => c.Equals(message)))
-            {
+            TelegramCommand? command = _commandService.Get().FirstOrDefault(c => c.Equals(message));
+            if (command != null)
                 await command.Execute(message, botClient);
-                break;
-            }
         }
 
         #region Обработка ошибок
