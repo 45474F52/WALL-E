@@ -17,7 +17,7 @@ namespace WALL_E.Core
         /// <summary>
         /// Выполняет команду
         /// </summary>
-        public abstract Task Execute(Message message, ITelegramBotClient botClient);
+        public abstract Task Execute(Message message, ITelegramBotClient botClient, CancellationToken token);
 
         /// <summary>
         /// Проверяет объект <paramref name="message"/> на совпадение с именем команды независимо от регистра

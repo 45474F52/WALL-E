@@ -5,11 +5,29 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace WALL_E.Commands
 {
+    /// <summary>
+    /// Меню
+    /// </summary>
     internal class MainCommand : TelegramCommand
     {
+        /// <summary>
+        /// Меню
+        /// </summary>
+        public MainCommand() { }
+
         public override string Name { get; } = "/start";
 
-        public override async Task Execute(Message message, ITelegramBotClient botClient)
+        private const string SecondName = "Меню";
+
+        /// <summary>
+        /// Проверяет объект <paramref name="message"/> на совпадение с именем команды независимо от регистра
+        /// и на совпадение с <see cref="SecondName"/>
+        /// </summary>
+        /// <returns>Возвращает <see langword="true"/>, если текст сообщения равен имени команды или <see cref="SecondName"/>,
+        /// иначе <see langword="false"/></returns>
+        public override bool Equals(Message message) => base.Equals(message) || message.Text == SecondName;
+
+        public override async Task Execute(Message message, ITelegramBotClient botClient, CancellationToken token)
         {
             string text = "Бот WALL-E на связи!" + Environment.NewLine + Environment.NewLine + "Выбери команду:";
 
@@ -17,11 +35,11 @@ namespace WALL_E.Commands
                 {
                     new[]
                     {
-                        new KeyboardButton("Выведи рандомное число")
+                        new KeyboardButton("О компании")
                     },
                     new[]
                     {
-                        new KeyboardButton("Скажи время")
+                        new KeyboardButton("Список сотрудников")
                     },
                     new[]
                     {
@@ -30,7 +48,7 @@ namespace WALL_E.Commands
                 })
             { ResizeKeyboard = true };
 
-            await botClient.SendTextMessageAsync(message.Chat.Id, text, replyMarkup: keyboard);
+            await botClient.SendTextMessageAsync(message.Chat.Id, text, replyMarkup: keyboard, cancellationToken: token);
         }
     }
 }

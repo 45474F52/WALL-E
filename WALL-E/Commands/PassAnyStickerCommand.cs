@@ -6,9 +6,17 @@ using Telegram.Bot.Types.InputFiles;
 
 namespace WALL_E.Commands
 {
+    /// <summary>
+    /// Отправляет рандомный стикер из внутренней "базы" стикеров
+    /// </summary>
     internal class PassAnyStickerCommand : TelegramCommand
     {
         static PassAnyStickerCommand() => _random = new Random();
+
+        /// <summary>
+        /// Отправляет рандомный стикер из внутренней "базы" стикеров
+        /// </summary>
+        public PassAnyStickerCommand() { }
 
         private static readonly Random _random;
 
@@ -22,7 +30,7 @@ namespace WALL_E.Commands
 
         public override string Name { get; } = "Отправь стикер";
 
-        public override async Task Execute(Message message, ITelegramBotClient botClient)
+        public override async Task Execute(Message message, ITelegramBotClient botClient, CancellationToken token)
         {
             InputOnlineFile file = new InputOnlineFile(_stickerBase[_random.Next(0, _stickerBase.Length)]);
 
@@ -30,20 +38,16 @@ namespace WALL_E.Commands
                 {
                     new[]
                     {
-                        new KeyboardButton("Выведи рандомное число")
-                    },
-                    new[]
-                    {
-                        new KeyboardButton("Скажи время")
-                    },
-                    new[]
-                    {
                         new KeyboardButton("Отправь стикер")
+                    },
+                    new[]
+                    {
+                        new KeyboardButton("Меню")
                     }
                 })
             { ResizeKeyboard = true };
 
-            await botClient.SendStickerAsync(message.Chat.Id, file, replyMarkup: keyboard);
+            await botClient.SendStickerAsync(message.Chat.Id, file, replyMarkup: keyboard, cancellationToken: token);
         }
     }
 }

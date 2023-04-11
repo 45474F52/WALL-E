@@ -18,8 +18,9 @@ namespace WALL_E.Model
             _commands = new List<TelegramCommand>()
             {
                 new MainCommand(),
-                new RandomNumberCommand(),
-                new GetCurrentTimeCommand(),
+                new ShowCompanyInfoCommand(),
+                new ShowEmployeesListCommand(),
+                new ShowEmployeeInfoCommand(),
                 new PassAnyStickerCommand(),
             };
         }
